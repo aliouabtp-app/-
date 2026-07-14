@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مدير البناء - شركتي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        :root {
+            --gold: #f5c842;
+            --gold-dim: rgba(245, 200, 66, 0.12);
+            --gold-border: rgba(255, 215, 0, 0.06);
+            --bg: #0b1420;
+            --card: rgba(255,255,255,0.02);
+            --text: #e8edf5;
+            --muted: #6a7a8f;
+            --success: #6fdf8a;
+            --danger: #f77;
+            --info: #4dabf7;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; }
+        body { background:var(--bg); min-height:100vh; display:flex; justify-content:center; align-items:flex-start; padding:16px; color:var(--text); }
+        .app-container { max-width:520px; width:100%; background:linear-gradient(145deg,#111e2b,#0a1520); border-radius:36px; padding:18px 16px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.8); border:1px solid var(--gold-border); }
+        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--gold-border); }
+        .header h1 { font-size:20px; font-weight:700; color:var(--gold); display:flex; align-items:center; gap:8px; }
+        .header h1 small { font-size:10px; background:var(--gold-dim); padding:2px 10px; border-radius:30px; color:#b8aa7a; }
+        .header-actions { display:flex; gap:6px; }
+        .header-actions button { background:rgba(255,255,255,0.03); border:1px solid var(--gold-border); color:var(--muted); width:36px; height:36px; border-radius:40px; cursor:pointer; transition:0.2s; }
+        .header-actions button:hover { background:var(--gold-dim); color:var(--gold); }
+        .api-setup { background:rgba(255,200,0,0.04); border:1px solid rgba(255,200,0,0.06); border-radius:12px; padding:8px 10px; margin-bottom:16px; display:flex; flex-wrap:wrap; gap:4px; align-items:center; justify-content:center; }
+        .api-setup input { background:rgba(0,0,0,0.3); border:1px solid rgba(255,215,0,0.1); border-radius:30px; padding:6px 12px; flex:1; min-width:100px; color:#fff; font-size:11px; outline:none; }
+        .api-setup input:focus { border-color:var(--gold); }
+        .api-setup label { color:#b8aa7a; font-size:10px; }
+        .badge-auto { background:rgba(0,255,100,0.08); color:var(--success); font-size:9px; padding:2px 10px; border-radius:30px; border:1px solid rgba(0,255,100,0.1); }
+        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:16px; }
+        .stat-card { background:var(--card); border:1px solid var(--gold-border); border-radius:16px; padding:10px 6px; text-align:center; cursor:pointer; transition:0.2s; }
+        .stat-card:hover { background:rgba(255,255,255,0.04); transform:translateY(-2px); }
+        .stat-card .number { font-size:20px; font-weight:700; color:var(--gold); }
+        .stat-card .label { font-size:9px; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:0.5px; }
+        .stat-card .icon { font-size:14px; color:var(--muted); margin-bottom:2px; }
+        .search-box { display:flex; gap:6px; margin-bottom:12px; }
+        .search-box input { flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--gold-border); border-radius:30px; padding:8px 14px; color:#fff; font-size:12px; outline:none; }
+        .search-box input:focus { border-color:rgba(255,215,0,0.2); }
+        .search-box select { background:rgba(0,0,0,0.3); border:1px solid var(--gold-border); border-radius:30px; padding:8px 12px; color:var(--muted); font-size:11px; outline:none; }
+        .tabs { display:flex; gap:4px; margin-bottom:14px; background:rgba(0,0,0,0.3); border-radius:30px; padding:4px; overflow-x:auto; }
+        .tab-btn { flex:1; padding:8px 6px; border:none; background:transparent; color:var(--muted); font-size:11px; font-weight:500; border-radius:30px; cursor:pointer; transition:0.3s; display:flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap; min-width:60px; }
+        .tab-btn.active { background:var(--gold-dim); color:var(--gold); }
+        .tab-btn:hover { color:#d4c08a; }
+        .tab-content { display:none; animation:fadeIn 0.3s ease; }
+        .tab-content.active { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        .progress-ring { position:relative; width:50px; height:50px; flex-shrink:0; }
+        .progress-ring svg { transform:rotate(-90deg); }
+        .progress-ring circle { fill:none; stroke-width:4; }
+        .progress-ring .bg { stroke:rgba(255,255,255,0.05); }
+        .progress-ring .fg { stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 0.5s ease; }
+        .progress-ring span { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:11px; font-weight:700; color:var(--gold); }
+        .project-item { background:var(--card); border:1px solid var(--gold-border); border-radius:16px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:10px; transition:0.2s; }
+        .project-item:hover { background:rgba(255,255,255,0.03); }
+        .project-item .info { flex:1; }
+        .project-item .info h4 { color:var(--text); font-size:14px; font-weight:600; }
+        .project-item .info p { color:var(--muted); font-size:11px; margin-top:2px; }
+        .project-item .actions { display:flex; gap:4px; }
+        .project-item .actions button { background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:12px; padding:4px; transition:0.2s; }
+        .project-item .actions button:hover { color:var(--gold); }
+        .status { font-size:10px; padding:3px 12px; border-radius:30px; font-weight:500; white-space:nowrap; }
+        .status.ongoing { background:rgba(245,200,66,0.15); color:var(--gold); }
+        .status.completed { background:rgba(0,255,100,0.1); color:var(--success); }
+        .status.pending { background:rgba(255,100,100,0.1); color:var(--danger); }
+        .employee-item { display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--card); border:1px solid var(--gold-border); border-radius:16px; margin-bottom:6px; transition:0.2s; }
+        .employee-item:hover { background:rgba(255,255,255,0.03); }
+        .employee-item .avatar { width:40px; height:40px; border-radius:40px; background:var(--gold-dim); display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:16px; }
+        .employee-item .info { flex:1; }
+        .employee-item .info h4 { color:var(--text); font-size:13px; }
+        .employee-item .info p { color:var(--muted); font-size:10px; }
+        .employee-item .role { font-size:9px; padding:2px 10px; border-radius:30px; background:rgba(255,255,255,0.04); color:#8a9bb5; white-space:nowrap; }
+        .employee-item .actions { display:flex; gap:4px; }
+        .employee-item .actions button { background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:12px; padding:4px; }
+        .employee-item .actions button:hover { color:var(--gold); }
+        .finance-row { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--card); border:1px solid var(--gold-border); border-radius:16px; margin-bottom:6px; transition:0.2s; }
+        .finance-row:hover { background:rgba(255,255,255,0.03); }
+        .finance-row .label { color:#8a9bb5; font-size:12px; }
+        .finance-row .value { color:var(--text); font-weight:600; font-size:14px; }
+        .value.positive { color:var(--success); }
+        .value.negative { color:var(--danger); }
+        .finance-row .actions { display:flex; gap:4px; }
+        .finance-row .actions button { background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:12px; padding:4px; }
+        .finance-row .actions button:hover { color:var(--gold); }
+        .task-item { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--card); border:1px solid var(--gold-border); border-radius:16px; margin-bottom:6px; }
+        .task-item input[type="checkbox"] { width:18px; height:18px; accent-color:var(--gold); cursor:pointer; }
+        .task-item .task-text { flex:1; font-size:13px; color:var(--text); }
+        .task-item .task-text.done { text-decoration:line-through; color:var(--muted); }
+        .task-item .task-meta { font-size:10px; color:var(--muted); }
+        .equipment-item { display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--card); border:1px solid var(--gold-border); border-radius:16px; margin-bottom:6px; }
+        .equipment-item .icon { width:36px; height:36px; border-radius:40px; background:rgba(77,171,247,0.1); display:flex; align-items:center; justify-content:center; color:var(--info); font-size:14px; }
+        .equipment-item .info { flex:1; }
+        .equipment-item .info h4 { color:var(--text); font-size:13px; }
+        .equipment-item .info p { color:var(--muted); font-size:10px; }
+        .eq-status { font-size:9px; padding:2px 10px; border-radius:30px; }
+        .eq-status.available { background:rgba(0,255,100,0.1); color:var(--success); }
+        .eq-status.rented { background:rgba(245,200,66,0.15); color:var(--gold); }
+        .eq-status.maintenance { background:rgba(255,100,100,0.1); color:var(--danger); }
+        .chat-mini { background:rgba(0,0,0,0.3); border-radius:20px; padding:12px; height:200px; overflow-y:auto; margin-bottom:10px; border:1px solid var(--gold-border); }
+        .chat-mini .msg { margin-bottom:8px; font-size:12px; line-height:1.5; padding:8px 12px; border-radius:12px; max-width:85%; }
+        .chat-mini .msg.user { background:var(--gold-dim); color:var(--gold); margin-left:auto; border-bottom-left-radius:4px; }
+        .chat-mini .msg.bot { background:rgba(255,255,255,0.03); color:#b8c4d4; margin-right:auto; border-bottom-right-radius:4px; }
+        .chat-input-mini { display:flex; gap:6px; }
+        .chat-input-mini input { flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--gold-border); border-radius:30px; padding:8px 14px; color:#fff; font-size:12px; outline:none; }
+        .chat-input-mini input:focus { border-color:rgba(255,215,0,0.2); }
+        .chat-input-mini button { background:var(--gold-dim); border:1px solid var(--gold-border); color:var(--gold); width:36px; height:36px; border-radius:40px; cursor:pointer; transition:0.2s; }
+        .chat-input-mini button:hover { background:rgba(245,200,66,0.2); }
+        .engine-status { display:flex; justify-content:space-between; align-items:center; padding:6px 12px; background:rgba(0,0,0,0.2); border-radius:30px; margin-top:10px; font-size:10px; }
+        .engine-status .badge { color:var(--success); }
+        .engine-status .badge i { margin-right:4px; }
+        .quick-btn { background:rgba(255,215,0,0.04); border:1px solid var(--gold-border); color:#d4c08a; padding:4px 10px; border-radius:30px; font-size:10px; cursor:pointer; transition:0.2s; }
+        .quick-btn:hover { background:var(--gold-dim); }
+        .add-btn { width:100%; margin-top:8px; padding:10px; background:rgba(245,200,66,0.06); border:1px dashed rgba(255,215,0,0.1); border-radius:30px; color:#8a9bb5; cursor:pointer; font-size:12px; transition:0.2s; }
+        .add-btn:hover { background:rgba(245,200,66,0.1); color:var(--gold); }
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:1000; padding:16px; }
+        .modal-overlay.active { display:flex; }
+        .modal { background:linear-gradient(145deg,#111e2b,#0a1520); border-radius:24px; padding:20px; max-width:400px; width:100%; border:1px solid var(--gold-border); max-height:90vh; overflow-y:auto; }
+        .modal h3 { color:var(--gold); margin-bottom:16px; font-size:16px; }
+        .modal .form-group { margin-bottom:12px; }
+        .modal .form-group label { display:block; color:var(--muted); font-size:11px; margin-bottom:4px; }
+        .modal .form-group input, .modal .form-group select, .modal .form-group textarea { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--gold-border); border-radius:12px; padding:10px 12px; color:#fff; font-size:13px; outline:none; }
+        .modal .form-group input:focus, .modal .form-group select:focus, .modal .form-group textarea:focus { border-color:var(--gold); }
+        .modal .form-group textarea { min-height:80px; resize:vertical; }
+        .modal-actions { display:flex; gap:8px; margin-top:16px; }
+        .modal-actions button { flex:1; padding:10px; border-radius:30px; border:none; cursor:pointer; font-size:13px; transition:0.2s; }
+        .modal-actions .btn-primary { background:var(--gold-dim); color:var(--gold); border:1px solid var(--gold-border); }
+        .modal-actions .btn-primary:hover { background:rgba(245,200,66,0.2); }
+        .modal-actions .btn-secondary { background:rgba(255,255,255,0.03); color:var(--muted); border:1px solid var(--gold-border); }
+        .modal-actions .btn-secondary:hover { background:rgba(255,255,255,0.06); }
+        .modal-actions .btn-danger { background:rgba(255,100,100,0.1); color:var(--danger); border:1px solid rgba(255,100,100,0.2); }
+        .modal-actions .btn-danger:hover { background:rgba(255,100,100,0.2); }
+        .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--card); border:1px solid var(--gold-border); color:var(--text); padding:10px 20px; border-radius:30px; font-size:12px; z-index:2000; opacity:0; transition:0.3s; }
+        .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-thumb { background:var(--gold); border-radius:12px; }
+        @media (max-width:400px) {
+            .stats-grid { grid-template-columns:repeat(2,1fr); }
+            .header h1 { font-size:16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h1>🏗️ مدير البناء <small>v3.0</small></h1>
+        <div class="header-actions">
+            <button onclick="refreshData()" title="تحديث"><i class="fas fa-sync-alt"></i></button>
+            <button onclick="exportReport()" title="تصدير"><i class="fas fa-file-export"></i></button>
+            <button onclick="shareApp()" title="مشاركة" style="background:rgba(37,211,102,0.1);border-color:rgba(37,211,102,0.2);color:#25d366;"><i class="fab fa-whatsapp"></i></button>
+        </div>
+    </div>
+
+    <div class="api-setup">
+        <label>🔑 مفاتيح API</label>
+        <input type="password" id="geminiKey" placeholder="Gemini: AIza..." />
+        <input type="password" id="groqKey" placeholder="Groq: gsk_..." />
+        <input type="password" id="deepseekKey" placeholder="DeepSeek: sk-..." />
+        <span class="badge-auto">🔄 تلقائي</span>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card" onclick="switchTab('tabProjects')">
+            <div class="icon"><i class="fas fa-hard-hat"></i></div>
+            <div class="number" id="statsProjects">0</div>
+            <div class="label">مشاريع</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('tabEmployees')">
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <div class="number" id="statsEmployees">0</div>
+            <div class="label">موظفين</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('tabFinance')">
+            <div class="icon"><i class="fas fa-coins"></i></div>
+            <div class="number" id="statsBudget">0</div>
+            <div class="label">الميزانية</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('tabProjects')">
+            <div class="icon"><i class="fas fa-check-circle"></i></div>
+            <div class="number" id="statsCompleted">0</div>
+            <div class="label">منتهية</div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tabProjects" onclick="switchTab('tabProjects')"><i class="fas fa-building"></i> مشاريع</button>
+        <button class="tab-btn" data-tab="tabEmployees" onclick="switchTab('tabEmployees')"><i class="fas fa-users"></i> فريق</button>
+        <button class="tab-btn" data-tab="tabFinance" onclick="switchTab('tabFinance')"><i class="fas fa-wallet"></i> مالية</button>
+        <button class="tab-btn" data-tab="tabTasks" onclick="switchTab('tabTasks')"><i class="fas fa-tasks"></i> مهام</button>
+        <button class="tab-btn" data-tab="tabEquipment" onclick="switchTab('tabEquipment')"><i class="fas fa-truck"></i> معدات</button>
+        <button class="tab-btn" data-tab="tabAI" onclick="switchTab('tabAI')"><i class="fas fa-robot"></i> مساعد</button>
+    </div>
+
+    <div class="tab-content active" id="tabProjects">
+        <div class="search-box">
+            <input type="text" id="projectSearch" placeholder="🔍 بحث في المشاريع..." oninput="filterProjects()" />
+            <select id="projectFilter" onchange="filterProjects()">
+                <option value="all">الكل</option>
+                <option value="ongoing">قيد الإنجاز</option>
+                <option value="completed">منتهي</option>
+                <option value="pending">قيد الدراسة</option>
+            </select>
+        </div>
+        <div id="projectList"></div>
+        <button class="add-btn" onclick="openProjectModal()"><i class="fas fa-plus"></i> إضافة مشروع جديد</button>
+    </div>
+
+    <div class="tab-content" id="tabEmployees">
+        <div class="search-box">
+            <input type="text" id="employeeSearch" placeholder="🔍 بحث في الفريق..." oninput="filterEmployees()" />
+        </div>
+        <div id="employeeList"></div>
+        <button class="add-btn" onclick="openEmployeeModal()"><i class="fas fa-plus"></i> إضافة موظف</button>
+    </div>
+
+    <div class="tab-content" id="tabFinance">
+        <div class="search-box">
+            <input type="text" id="financeSearch" placeholder="🔍 بحث في العمليات..." oninput="filterFinance()" />
+            <select id="financeFilter" onchange="filterFinance()">
+                <option value="all">الكل</option>
+                <option value="income">وارد</option>
+                <option value="expense">صرف</option>
+            </select>
+        </div>
+        <div id="financeList"></div>
+        <button class="add-btn" onclick="openFinanceModal()"><i class="fas fa-plus"></i> إضافة عملية مالية</button>
+    </div>
+
+    <div class="tab-content" id="tabTasks">
+        <div id="taskList"></div>
+        <button class="add-btn" onclick="openTaskModal()"><i class="fas fa-plus"></i> إضافة مهمة</button>
+    </div>
+
+    <div class="tab-content" id="tabEquipment">
+        <div id="equipmentList"></div>
+        <button class="add-btn" onclick="openEquipmentModal()"><i class="fas fa-plus"></i> إضافة معدات</button>
+    </div>
+
+    <div class="tab-content" id="tabAI">
+        <div class="chat-mini" id="aiChat">
+            <div class="msg bot">🤖 مرحبا! أنا مساعدك الذكي للبناء.</div>
+            <div class="msg bot">• تقدير التكاليف • المواد • التراخيص • التسيير</div>
+        </div>
+        <div class="chat-input-mini">
+            <input type="text" id="aiInput" placeholder="اسأل عن البناء..." />
+            <button id="aiSendBtn"><i class="fas fa-paper-plane"></i></button>
+            <button id="aiMicBtn" style="background:rgba(196,46,59,0.2);border-color:rgba(196,46,59,0.3);color:#c42e3b;"><i class="fas fa-microphone"></i></button>
+        </div>
+        <div class="engine-status">
+            <span>🔄 <span id="aiStatus">جاهز</span></span>
+            <span class="badge"><i class="fas fa-brain"></i> <span id="aiEngine">HuggingFace</span></span>
+        </div>
+        <div style="display:flex; gap:4px; margin-top:8px; flex-wrap:wrap;">
+            <button class="quick-btn" onclick="quickAsk('كم تكلفة بناء فيلا 150م² في المغرب؟')">💰 التكلفة</button>
+            <button class="quick-btn" onclick="quickAsk('شنو هي مراحل البناء الأساسية؟')">📋 المراحل</button>
+            <button class="quick-btn" onclick="quickAsk('كيفاش نختار مقاول موثوق؟')">👷 المقاول</button>
+            <button class="quick-btn" onclick="quickAsk('شنو هي القوانين الجديدة للبناء في المغرب؟')">⚖️ القوانين</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" id="modalContent" onclick="event.stopPropagation()">
+        <h3 id="modalTitle">عنوان</h3>
+        <div id="modalBody"></div>
+        <div class="modal-actions" id="modalActions"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let data = {
+    projects: [
+        { id: 1, name: 'فيلا السعادة', location: 'الدار البيضاء', status: 'ongoing', budget: 850000, progress: 65, description: 'فيلا سكنية فاخرة', startDate: '2026-01-15', endDate: '2026-12-30' },
+        { id: 2, name: 'عمارة النور', location: 'الرباط', status: 'completed', budget: 1200000, progress: 100, description: 'عمارة سكنية 6 طوابق', startDate: '2025-06-01', endDate: '2026-03-15' },
+        { id: 3, name: 'مجمع سكني', location: 'مراكش', status: 'pending', budget: 2300000, progress: 20, description: 'مجمع سكني 20 فيلا', startDate: '2026-04-01', endDate: '2027-06-30' },
+        { id: 4, name: 'مستودع صناعي', location: 'طنجة', status: 'ongoing', budget: 450000, progress: 45, description: 'مستودع لوجستيكي', startDate: '2026-02-10', endDate: '2026-08-20' },
+    ],
+    employees: [
+        { id: 1, name: 'أحمد السوسي', role: 'مهندس معماري', phone: '0612345678', email: 'ahmed@example.com' },
+        { id: 2, name: 'فاطمة الزهراء', role: 'مديرة مشاريع', phone: '0687654321', email: 'fatima@example.com' },
+        { id: 3, name: 'يوسف المنصوري', role: 'مقاول', phone: '0654321987', email: 'youssef@example.com' },
+        { id: 4, name: 'سعيدة بنعلي', role: 'محاسبة', phone: '0678912345', email: 'saeeda@example.com' },
+    ],
+    finances: [
+        { id: 1, label: 'شراء إسمنت', amount: -45000, date: '2026-03-01', category: 'مواد' },
+        { id: 2, label: 'دفعة للعمال', amount: -28000, date: '2026-03-05', category: 'أجور' },
+        { id: 3, label: 'دفعة أولى من العميل', amount: 200000, date: '2026-02-20', category: 'إيراد' },
+        { id: 4, label: 'حديد بناء', amount: -67000, date: '2026-02-28', category: 'مواد' },
+    ],
+    tasks: [
+        { id: 1, text: 'الحصول على رخصة البناء', done: true, projectId: 1, priority: 'high' },
+        { id: 2, text: 'شراء مواد البناء الأولية', done: false, projectId: 1, priority: 'high' },
+        { id: 3, text: 'تأجير رافعة', done: false, projectId: 4, priority: 'medium' },
+        { id: 4, text: 'مراجعة التصاميم الهندسية', done: true, projectId: 2, priority: 'high' },
+    ],
+    equipment: [
+        { id: 1, name: 'رافعة برجية', type: 'رفع', status: 'available', projectId: null },
+        { id: 2, name: 'خلاطة إسمنت', type: 'إنتاج', status: 'rented', projectId: 1 },
+        { id: 3, name: 'شاحنة نقل', type: 'نقل', status: 'available', projectId: null },
+        { id: 4, name: 'مضخة خرسانة', type: 'صب', status: 'maintenance', projectId: null },
+    ],
+    chatHistory: []
+};
+
+let editingId = null;
+let editingType = null;
+
+function saveData() { localStorage.setItem('companyData_v3', JSON.stringify(data)); }
+function loadData() {
+    const saved = localStorage.getItem('companyData_v3');
+    if (saved) { try { data = JSON.parse(saved); } catch(e) {} }
+    ['geminiKey','groqKey','deepseekKey'].forEach(k => {
+        const v = localStorage.getItem(k);
+        if(v) document.getElementById(k).value = v;
+    });
+}
+loadData();
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showModal(title, bodyHtml, actionsHtml) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = bodyHtml;
+    document.getElementById('modalActions').innerHTML = actionsHtml;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+function closeModal(e) {
+    if (!e || e.target === document.getElementById('modalOverlay')) {
+        document.getElementById('modalOverlay').classList.remove('active');
+        editingId = null; editingType = null;
+    }
+}
+
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
+    document.getElementById(tabId)?.classList.add('active');
+    refreshData();
+}
+
+function progressRing(percent) {
+    const r = 20, c = 2 * Math.PI * r;
+    const offset = c - (percent / 100) * c;
+    return `<div class="progress-ring"><svg width="50" height="50"><circle class="bg" cx="25" cy="25" r="${r}"/><circle class="fg" cx="25" cy="25" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${offset}"/></svg><span>${percent}%</span></div>`;
+}
+
+function renderProjects() {
+    const search = document.getElementById('projectSearch')?.value.toLowerCase() || '';
+    const filter = document.getElementById('projectFilter')?.value || 'all';
+    const container = document.getElementById('projectList');
+    let list = data.projects.filter(p => {
+        const matchSearch = p.name.toLowerCase().includes(search) || p.location.toLowerCase().includes(search);
+        const matchFilter = filter === 'all' || p.status === filter;
+        return matchSearch && matchFilter;
+    });
+    container.innerHTML = list.map(p => `
+        <div class="project-item">
+            ${progressRing(p.progress)}
+            <div class="info" style="flex:1;">
+                <h4>${p.name}</h4>
+                <p>📍 ${p.location} · ${(p.budget/1000).toFixed(0)}K DH · ${p.startDate || ''}</p>
+                <p style="font-size:10px;color:#8a9bb5;margin-top:2px;">${p.description || ''}</p>
+            </div>
+            <span class="status ${p.status}">${p.status==='ongoing'?'قيد الإنجاز':p.status==='completed'?'منتهي':'قيد الدراسة'}</span>
+            <div class="actions">
+                <button onclick="editProject(${p.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteProject(${p.id})" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+    document.getElementById('statsProjects').textContent = data.projects.length;
+    document.getElementById('statsCompleted').textContent = data.projects.filter(p => p.status === 'completed').length;
+}
+
+function renderEmployees() {
+    const search = document.getElementById('employeeSearch')?.value.toLowerCase() || '';
+    const container = document.getElementById('employeeList');
+    let list = data.employees.filter(e => e.name.toLowerCase().includes(search) || e.role.toLowerCase().includes(search));
+    container.innerHTML = list.map(e => `
+        <div class="employee-item">
+            <div class="avatar"><i class="fas fa-user"></i></div>
+            <div class="info">
+                <h4>${e.name}</h4>
+                <p>📱 ${e.phone}${e.email ? ' · ✉️ ' + e.email : ''}</p>
+            </div>
+            <span class="role">${e.role}</span>
+            <div class="actions">
+                <button onclick="editEmployee(${e.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteEmployee(${e.id})" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+    document.getElementById('statsEmployees').textContent = data.employees.length;
+}
+
+function renderFinance() {
+    const search = document.getElementById('financeSearch')?.value.toLowerCase() || '';
+    const filter = document.getElementById('financeFilter')?.value || 'all';
+    const container = document.getElementById('financeList');
+    let list = data.finances.filter(f => {
+        const matchSearch = f.label.toLowerCase().includes(search);
+        const matchFilter = filter === 'all' || (filter === 'income' ? f.amount > 0 : f.amount < 0);
+        return matchSearch && matchFilter;
+    });
+    const total = data.finances.reduce((sum, f) => sum + f.amount, 0);
+    container.innerHTML = list.map(f => `
+        <div class="finance-row">
+            <div>
+                <span class="label">${f.label}</span>
+                <span style="color:#6a7a8f;font-size:10px;display:block;">${f.date} · ${f.category || ''}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span class="value ${f.amount >= 0 ? 'positive' : 'negative'}">${f.amount >= 0 ? '+' : ''}${(f.amount/1000).toFixed(1)}K DH</span>
+                <div class="actions">
+                    <button onclick="editFinance(${f.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteFinance(${f.id})" title="حذف"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    document.getElementById('statsBudget').textContent = (total/1000).toFixed(1) + 'K';
+}
+
+function renderTasks() {
+    const container = document.getElementById('taskList');
+    container.innerHTML = data.tasks.map(t => {
+        const proj = data.projects.find(p => p.id === t.projectId);
+        return `
+        <div class="task-item">
+            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})">
+            <div style="flex:1;">
+                <div class="task-text ${t.done ? 'done' : ''}">${t.text}</div>
+                <div class="task-meta">${proj ? '📁 ' + proj.name : ''} · ${t.priority === 'high' ? '🔴 عاجل' : t.priority === 'medium' ? '🟡 متوسط' : '🟢 عادي'}</div>
+            </div>
+            <div class="actions">
+                <button onclick="deleteTask(${t.id})" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderEquipment() {
+    const container = document.getElementById('equipmentList');
+    container.innerHTML = data.equipment.map(eq => {
+        const proj = data.projects.find(p => p.id === eq.projectId);
+        return `
+        <div class="equipment-item">
+            <div class="icon"><i class="fas fa-${eq.type === 'رفع' ? 'arrow-up' : eq.type === 'نقل' ? 'truck' : eq.type === 'صب' ? 'tint' : 'cogs'}"></i></div>
+            <div class="info">
+                <h4>${eq.name}</h4>
+                <p>${eq.type}${proj ? ' · 📁 ' + proj.name : ''}</p>
+            </div>
+            <span class="eq-status ${eq.status}">${eq.status === 'available' ? 'متاح' : eq.status === 'rented' ? 'مستأجر' : 'صيانة'}</span>
+            <div class="actions">
+                <button onclick="editEquipment(${eq.id})" title="تعديل"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteEquipment(${eq.id})" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function refreshData() {
+    renderProjects();
+    renderEmployees();
+    renderFinance();
+    renderTasks();
+    renderEquipment();
+    saveData();
+}
+
+function openProjectModal() {
+    editingId = null;
+    showModal('إضافة مشروع', `
+        <div class="form-group"><label>اسم المشروع</label><input type="text" id="pName" /></div>
+        <div class="form-group"><label>الموقع</label><input type="text" id="pLocation" /></div>
+        <div class="form-group"><label>الميزانية (درهم)</label><input type="number" id="pBudget" /></div>
+        <div class="form-group"><label>نسبة التقدم (%)</label><input type="number" id="pProgress" min="0" max="100" /></div>
+        <div class="form-group"><label>الحالة</label><select id="pStatus"><option value="pending">قيد الدراسة</option><option value="ongoing">قيد الإنجاز</option><option value="completed">منتهي</option></select></div>
+        <div class="form-group"><label>تاريخ البدء</label><input type="date" id="pStart" /></div>
+        <div class="form-group"><label>تاريخ الانتهاء المتوقع</label><input type="date" id="pEnd" /></div>
+        <div class="form-group"><label>وصف</label><textarea id="pDesc"></textarea></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveProject()">حفظ</button>
+    `);
+}
+function editProject(id) {
+    const p = data.projects.find(x => x.id === id);
+    if (!p) return;
+    editingId = id; editingType = 'project';
+    showModal('تعديل مشروع', `
+        <div class="form-group"><label>اسم المشروع</label><input type="text" id="pName" value="${p.name}" /></div>
+        <div class="form-group"><label>الموقع</label><input type="text" id="pLocation" value="${p.location}" /></div>
+        <div class="form-group"><label>الميزانية (درهم)</label><input type="number" id="pBudget" value="${p.budget}" /></div>
+        <div class="form-group"><label>نسبة التقدم (%)</label><input type="number" id="pProgress" min="0" max="100" value="${p.progress}" /></div>
+        <div class="form-group"><label>الحالة</label><select id="pStatus"><option value="pending" ${p.status==='pending'?'selected':''}>قيد الدراسة</option><option value="ongoing" ${p.status==='ongoing'?'selected':''}>قيد الإنجاز</option><option value="completed" ${p.status==='completed'?'selected':''}>منتهي</option></select></div>
+        <div class="form-group"><label>تاريخ البدء</label><input type="date" id="pStart" value="${p.startDate || ''}" /></div>
+        <div class="form-group"><label>تاريخ الانتهاء المتوقع</label><input type="date" id="pEnd" value="${p.endDate || ''}" /></div>
+        <div class="form-group"><label>وصف</label><textarea id="pDesc">${p.description || ''}</textarea></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveProject()">تحديث</button>
+    `);
+}
+function saveProject() {
+    const name = document.getElementById('pName').value.trim();
+    if (!name) { showToast('❌ أدخل اسم المشروع'); return; }
+    const item = {
+        id: editingId || Date.now(),
+        name,
+        location: document.getElementById('pLocation').value || 'غير محدد',
+        budget: parseFloat(document.getElementById('pBudget').value) || 0,
+        progress: parseInt(document.getElementById('pProgress').value) || 0,
+        status: document.getElementById('pStatus').value,
+        startDate: document.getElementById('pStart').value,
+        endDate: document.getElementById('pEnd').value,
+        description: document.getElementById('pDesc').value
+    };
+    if (editingId) {
+        const idx = data.projects.findIndex(p => p.id === editingId);
+        if (idx > -1) data.projects[idx] = item;
+    } else {
+        data.projects.push(item);
+    }
+    closeModal();
+    refreshData();
+    showToast(editingId ? '✅ تم التحديث' : '✅ تم الإضافة');
+}
+function deleteProject(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا المشروع؟')) return;
+    data.projects = data.projects.filter(p => p.id !== id);
+    refreshData();
+    showToast('🗑️ تم الحذف');
+}
+function filterProjects() { renderProjects(); }
+
+function openEmployeeModal() {
+    editingId = null;
+    showModal('إضافة موظف', `
+        <div class="form-group"><label>الاسم الكامل</label><input type="text" id="eName" /></div>
+        <div class="form-group"><label>الوظيفة</label><input type="text" id="eRole" /></div>
+        <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="ePhone" /></div>
+        <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="eEmail" /></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveEmployee()">حفظ</button>
+    `);
+}
+function editEmployee(id) {
+    const e = data.employees.find(x => x.id === id);
+    if (!e) return;
+    editingId = id;
+    showModal('تعديل موظف', `
+        <div class="form-group"><label>الاسم الكامل</label><input type="text" id="eName" value="${e.name}" /></div>
+        <div class="form-group"><label>الوظيفة</label><input type="text" id="eRole" value="${e.role}" /></div>
+        <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="ePhone" value="${e.phone}" /></div>
+        <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="eEmail" value="${e.email || ''}" /></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveEmployee()">تحديث</button>
+    `);
+}
+function saveEmployee() {
+    const name = document.getElementById('eName').value.trim();
+    if (!name) { showToast('❌ أدخل الاسم'); return; }
+    const item = {
+        id: editingId || Date.now(),
+        name,
+        role: document.getElementById('eRole').value || 'موظف',
+        phone: document.getElementById('ePhone').value || 'غير محدد',
+        email: document.getElementById('eEmail').value || ''
+    };
+    if (editingId) {
+        const idx = data.employees.findIndex(e => e.id === editingId);
+        if (idx > -1) data.employees[idx] = item;
+    } else {
+        data.employees.push(item);
+    }
+    closeModal();
+    refreshData();
+    showToast(editingId ? '✅ تم التحديث' : '✅ تم الإضافة');
+}
+function deleteEmployee(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا الموظف؟')) return;
+    data.employees = data.employees.filter(e => e.id !== id);
+    refreshData();
+    showToast('🗑️ تم الحذف');
+}
+function filterEmployees() { renderEmployees(); }
+
+function openFinanceModal() {
+    editingId = null;
+    showModal('إضافة عملية مالية', `
+        <div class="form-group"><label>وصف العملية</label><input type="text" id="fLabel" /></div>
+        <div class="form-group"><label>المبلغ (درهم، سالب للصرف)</label><input type="number" id="fAmount" /></div>
+        <div class="form-group"><label>التاريخ</label><input type="date" id="fDate" value="${new Date().toISOString().slice(0,10)}" /></div>
+        <div class="form-group"><label>الفئة</label><select id="fCategory"><option>مواد</option><option>أجور</option><option>إيراد</option><option>معدات</option><option>أخرى</option></select></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveFinance()">حفظ</button>
+    `);
+}
+function editFinance(id) {
+    const f = data.finances.find(x => x.id === id);
+    if (!f) return;
+    editingId = id;
+    showModal('تعديل عملية مالية', `
+        <div class="form-group"><label>وصف العملية</label><input type="text" id="fLabel" value="${f.label}" /></div>
+        <div class="form-group"><label>المبلغ (درهم)</label><input type="number" id="fAmount" value="${f.amount}" /></div>
+        <div class="form-group"><label>التاريخ</label><input type="date" id="fDate" value="${f.date}" /></div>
+        <div class="form-group"><label>الفئة</label><select id="fCategory"><option ${f.category==='مواد'?'selected':''}>مواد</option><option ${f.category==='أجور'?'selected':''}>أجور</option><option ${f.category==='إيراد'?'selected':''}>إيراد</option><option ${f.category==='معدات'?'selected':''}>معدات</option><option ${f.category==='أخرى'?'selected':''}>أخرى</option></select></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveFinance()">تحديث</button>
+    `);
+}
+function saveFinance() {
+    const label = document.getElementById('fLabel').value.trim();
+    if (!label) { showToast('❌ أدخل الوصف'); return; }
+    const item = {
+        id: editingId || Date.now(),
+        label,
+        amount: parseFloat(document.getElementById('fAmount').value) || 0,
+        date: document.getElementById('fDate').value,
+        category: document.getElementById('fCategory').value
+    };
+    if (editingId) {
+        const idx = data.finances.findIndex(f => f.id === editingId);
+        if (idx > -1) data.finances[idx] = item;
+    } else {
+        data.finances.push(item);
+    }
+    closeModal();
+    refreshData();
+    showToast(editingId ? '✅ تم التحديث' : '✅ تم الإضافة');
+}
+function deleteFinance(id) {
+    if (!confirm('هل أنت متأكد من حذف هذه العملية؟')) return;
+    data.finances = data.finances.filter(f => f.id !== id);
+    refreshData();
+    showToast('🗑️ تم الحذف');
+}
+function filterFinance() { renderFinance(); }
+
+function openTaskModal() {
+    const projectOptions = data.projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    showModal('إضافة مهمة', `
+        <div class="form-group"><label>المهمة</label><input type="text" id="tText" /></div>
+        <div class="form-group"><label>المشروع</label><select id="tProject">${projectOptions}</select></div>
+        <div class="form-group"><label>الأولوية</label><select id="tPriority"><option value="high">عاجل</option><option value="medium">متوسط</option><option value="low">عادي</option></select></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveTask()">حفظ</button>
+    `);
+}
+function saveTask() {
+    const text = document.getElementById('tText').value.trim();
+    if (!text) { showToast('❌ أدخل المهمة'); return; }
+    data.tasks.push({
+        id: Date.now(),
+        text,
+        done: false,
+        projectId: parseInt(document.getElementById('tProject').value),
+        priority: document.getElementById('tPriority').value
+    });
+    closeModal();
+    refreshData();
+    showToast('✅ تمت الإضافة');
+}
+function toggleTask(id) {
+    const t = data.tasks.find(x => x.id === id);
+    if (t) { t.done = !t.done; refreshData(); }
+}
+function deleteTask(id) {
+    if (!confirm('هل أنت متأكد؟')) return;
+    data.tasks = data.tasks.filter(t => t.id !== id);
+    refreshData();
+    showToast('🗑️ تم الحذف');
+}
+
+function openEquipmentModal() {
+    const projectOptions = '<option value="">بدون مشروع</option>' + data.projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    showModal('إضافة معدات', `
+        <div class="form-group"><label>اسم المعدات</label><input type="text" id="eqName" /></div>
+        <div class="form-group"><label>النوع</label><select id="eqType"><option>رفع</option><option>إنتاج</option><option>نقل</option><option>صب</option><option>أخرى</option></select></div>
+        <div class="form-group"><label>الحالة</label><select id="eqStatus"><option value="available">متاح</option><option value="rented">مستأجر</option><option value="maintenance">صيانة</option></select></div>
+        <div class="form-group"><label>المشروع</label><select id="eqProject">${projectOptions}</select></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveEquipment()">حفظ</button>
+    `);
+}
+function editEquipment(id) {
+    const eq = data.equipment.find(x => x.id === id);
+    if (!eq) return;
+    editingId = id;
+    const projectOptions = '<option value="">بدون مشروع</option>' + data.projects.map(p => `<option value="${p.id}" ${p.id===eq.projectId?'selected':''}>${p.name}</option>`).join('');
+    showModal('تعديل معدات', `
+        <div class="form-group"><label>اسم المعدات</label><input type="text" id="eqName" value="${eq.name}" /></div>
+        <div class="form-group"><label>النوع</label><select id="eqType"><option ${eq.type==='رفع'?'selected':''}>رفع</option><option ${eq.type==='إنتاج'?'selected':''}>إنتاج</option><option ${eq.type==='نقل'?'selected':''}>نقل</option><option ${eq.type==='صب'?'selected':''}>صب</option><option ${eq.type==='أخرى'?'selected':''}>أخرى</option></select></div>
+        <div class="form-group"><label>الحالة</label><select id="eqStatus"><option value="available" ${eq.status==='available'?'selected':''}>متاح</option><option value="rented" ${eq.status==='rented'?'selected':''}>مستأجر</option><option value="maintenance" ${eq.status==='maintenance'?'selected':''}>صيانة</option></select></div>
+        <div class="form-group"><label>المشروع</label><select id="eqProject">${projectOptions}</select></div>
+    `, `
+        <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+        <button class="btn-primary" onclick="saveEquipment()">تحديث</button>
+    `);
+}
+function saveEquipment() {
+    const name = document.getElementById('eqName').value.trim();
+    if (!name) { showToast('❌ أدخل الاسم'); return; }
+    const item = {
+        id: editingId || Date.now(),
+        name,
+        type: document.getElementById('eqType').value,
+        status: document.getElementById('eqStatus').value,
+        projectId: document.getElementById('eqProject').value ? parseInt(document.getElementById('eqProject').value) : null
+    };
+    if (editingId) {
+        const idx = data.equipment.findIndex(e => e.id === editingId);
+        if (idx > -1) data.equipment[idx] = item;
+    } else {
+        data.equipment.push(item);
+    }
+    closeModal();
+    refreshData();
+    showToast(editingId ? '✅ تم التحديث' : '✅ تم الإضافة');
+}
+function deleteEquipment(id) {
+    if (!confirm('هل أنت متأكد؟')) return;
+    data.equipment = data.equipment.filter(e => e.id !== id);
+    refreshData();
+    showToast('🗑️ تم الحذف');
+}
+
+
+async function shareApp() {
+    const shareData = {
+        title: 'مدير البناء - تطبيق إدارة المشاريع',
+        text: '🏗️ جرب تطبيق مدير البناء - أداة مجانية لإدارة مشاريع البناء والمقاولات\n\n✅ تتبع المشاريع\n👷 إدارة الفريق\n💰 المالية\n🔧 المعدات\n🤖 مساعد ذكي\n\n📲 يعمل بدون إنترنت - البيانات تُحفظ في المتصفح',
+        url: window.location.href
+    };
+
+    // Try native share first (mobile)
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+            showToast('📤 تمت المشاركة');
+            return;
+        } catch(e) {}
+    }
+
+    // Fallback to WhatsApp
+    const text = encodeURIComponent(shareData.text + '\n\n' + shareData.url);
+    const waUrl = 'https://wa.me/?text=' + text;
+    window.open(waUrl, '_blank');
+    showToast('📱 جاري فتح واتساب...');
+}
+
+function exportReport() {
+    let txt = '═══════════════════════════════════════\n';
+    txt += '      تقرير شركة البناء - مدير البناء v3.0\n';
+    txt += '      تاريخ: ' + new Date().toLocaleDateString('ar-MA') + '\n';
+    txt += '═══════════════════════════════════════\n\n';
+
+    txt += '📊 المشاريع (' + data.projects.length + '):\n';
+    txt += '───────────────────────────────────────\n';
+    data.projects.forEach(p => {
+        txt += `• ${p.name}\n`;
+        txt += `  الموقع: ${p.location} | الحالة: ${p.status==='ongoing'?'قيد الإنجاز':p.status==='completed'?'منتهي':'قيد الدراسة'}\n`;
+        txt += `  التقدم: ${p.progress}% | الميزانية: ${(p.budget/1000).toFixed(0)}K DH\n`;
+        if(p.startDate) txt += `  من ${p.startDate} إلى ${p.endDate || 'غير محدد'}\n`;
+        txt += '\n';
+    });
+
+    txt += '\n👷 الفريق (' + data.employees.length + '):\n';
+    txt += '───────────────────────────────────────\n';
+    data.employees.forEach(e => {
+        txt += `• ${e.name} - ${e.role}\n`;
+        txt += `  📱 ${e.phone}${e.email ? ' | ✉️ ' + e.email : ''}\n\n`;
+    });
+
+    const total = data.finances.reduce((s,f) => s+f.amount, 0);
+    txt += `\n💰 المالية (المجموع: ${(total/1000).toFixed(1)}K DH):\n`;
+    txt += '───────────────────────────────────────\n';
+    data.finances.forEach(f => {
+        txt += `• ${f.label}: ${f.amount >= 0 ? '+' : ''}${f.amount} DH (${f.date}) [${f.category || 'غير مصنف'}]\n`;
+    });
+
+    txt += `\n\n✅ المهام المنجزة: ${data.tasks.filter(t=>t.done).length}/${data.tasks.length}\n`;
+    txt += `🔧 المعدات المتاحة: ${data.equipment.filter(e=>e.status==='available').length}/${data.equipment.length}\n`;
+
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `تقرير_البناء_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    showToast('📄 تم تصدير التقرير');
+}
+
+async function askAI(prompt) {
+    const statusEl = document.getElementById('aiStatus');
+    const engineEl = document.getElementById('aiEngine');
+
+    ['geminiKey','groqKey','deepseekKey'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el.value) localStorage.setItem(id, el.value);
+    });
+
+    const engines = [
+        { name:'Gemini', fn:async()=>{
+            const key=localStorage.getItem('geminiKey')||'';
+            if(!key) return null;
+            try{
+                const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,{
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({contents:[{parts:[{text:`أنت خبير في البناء والتشييد. أجب بالدارجة أو العربية. ${prompt}`}]}], generationConfig:{temperature:0.3,maxOutputTokens:512}})
+                });
+                const d=await res.json();
+                return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
+            }catch(e){return null;}
+        }},
+        { name:'Groq', fn:async()=>{
+            const key=localStorage.getItem('groqKey')||'';
+            if(!key) return null;
+            try{
+                const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+                    method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
+                    body:JSON.stringify({model:'mixtral-8x7b-32768',messages:[{role:'system',content:'أنت خبير بناء.'},{role:'user',content:prompt}],temperature:0.3,max_tokens:512})
+                });
+                const d=await res.json();
+                return d.choices?.[0]?.message?.content||null;
+            }catch(e){return null;}
+        }},
+        { name:'DeepSeek', fn:async()=>{
+            const key=localStorage.getItem('deepseekKey')||'';
+            if(!key) return null;
+            try{
+                const res=await fetch('https://api.deepseek.com/v1/chat/completions',{
+                    method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
+                    body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:'أنت خبير بناء.'},{role:'user',content:prompt}],temperature:0.3,max_tokens:512})
+                });
+                const d=await res.json();
+                return d.choices?.[0]?.message?.content||null;
+            }catch(e){return null;}
+        }},
+        { name:'HuggingFace', fn:async()=>{
+            try{
+                const res=await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1',{
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({inputs:`[INST] أنت خبير في البناء. ${prompt} [/INST]`, parameters:{max_new_tokens:512,temperature:0.3}})
+                });
+                const d=await res.json();
+                if(Array.isArray(d)&&d[0]?.generated_text){
+                    return d[0].generated_text.split('[/INST]').pop()?.trim()||null;
+                }
+                return null;
+            }catch(e){return null;}
+        }}
+    ];
+
+    for(const engine of engines){
+        try{
+            statusEl.textContent=`🔄 جاري ${engine.name}...`;
+            engineEl.textContent=engine.name;
+            const result=await engine.fn();
+            if(result&&result.length>10){
+                statusEl.textContent='✅ تم الرد';
+                return result;
+            }
+        }catch(e){}
+    }
+    statusEl.textContent='⚠️ جميع المحركات غير متاحة';
+    return '❌ عذراً، جميع محركات الذكاء الاصطناعي غير متاحة حالياً. تأكد من مفاتيح API أو استخدم HuggingFace المجاني.';
+}
+
+async function sendAIMessage() {
+    const input = document.getElementById('aiInput');
+    const chat = document.getElementById('aiChat');
+    const text = input.value.trim();
+    if (!text) return;
+
+    chat.innerHTML += `<div class="msg user">👤 ${text}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+    input.value = '';
+
+    chat.innerHTML += `<div class="msg bot">⏳ جاري التفكير...</div>`;
+    chat.scrollTop = chat.scrollHeight;
+
+    const reply = await askAI(text);
+
+    const msgs = chat.querySelectorAll('.msg');
+    if (msgs.length > 0 && msgs[msgs.length-1].textContent.includes('جاري التفكير')) {
+        msgs[msgs.length-1].remove();
+    }
+
+    chat.innerHTML += `<div class="msg bot">🤖 ${reply}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function quickAsk(msg) {
+    document.getElementById('aiInput').value = msg;
+    sendAIMessage();
+}
+
+document.getElementById('aiSendBtn').addEventListener('click', sendAIMessage);
+document.getElementById('aiInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendAIMessage();
+});
+
+let isRecording = false;
+let recognition = null;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = 'ar-MA';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = function(e) {
+        document.getElementById('aiInput').value = e.results[0][0].transcript;
+        sendAIMessage();
+        document.getElementById('aiMicBtn').style.background = 'rgba(196,46,59,0.2)';
+        isRecording = false;
+    };
+    recognition.onend = function() {
+        document.getElementById('aiMicBtn').style.background = 'rgba(196,46,59,0.2)';
+        isRecording = false;
+    };
+}
+
+document.getElementById('aiMicBtn').addEventListener('click', function() {
+    if (!recognition) {
+        showToast('🚫 المايك غير مدعوم في هذا المتصفح');
+        return;
+    }
+    if (isRecording) {
+        recognition.stop();
+        this.style.background = 'rgba(196,46,59,0.2)';
+        isRecording = false;
+        return;
+    }
+    try {
+        recognition.start();
+        this.style.background = 'rgba(196,46,59,0.5)';
+        isRecording = true;
+    } catch(e) {
+        showToast('⚠️ ' + e.message);
+    }
+});
+
+refreshData();
+</script>
+</body>
+</html>
