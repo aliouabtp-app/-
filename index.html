@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مدير البناء - شركتي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: #0b1420;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 16px;
+      }
+
+      .app-container {
+        max-width: 500px;
+        width: 100%;
+        background: linear-gradient(145deg, #111e2b, #0a1520);
+        border-radius: 36px;
+        padding: 18px 16px 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(255, 215, 0, 0.06);
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.06);
+      }
+
+      .header h1 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #f5c842;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .header h1 small {
+        font-size: 10px;
+        background: rgba(245, 200, 66, 0.12);
+        padding: 2px 10px;
+        border-radius: 30px;
+        color: #b8aa7a;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .header-actions button {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 215, 0, 0.06);
+        color: #8a9bb5;
+        width: 36px;
+        height: 36px;
+        border-radius: 40px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .header-actions button:hover {
+        background: rgba(245, 200, 66, 0.08);
+        color: #f5c842;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 215, 0, 0.04);
+        border-radius: 16px;
+        padding: 10px 6px;
+        text-align: center;
+      }
+
+      .stat-card .number {
+        font-size: 20px;
+        font-weight: 700;
+        color: #f5c842;
+      }
+
+      .stat-card .label {
+        font-size: 9px;
+        color: #6a7a8f;
+        margin-top: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-card .icon {
+        font-size: 14px;
+        color: #6a7a8f;
+        margin-bottom: 2px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 14px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 30px;
+        padding: 4px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 8px 6px;
+        border: none;
+        background: transparent;
+        color: #6a7a8f;
+        font-size: 11px;
+        font-weight: 500;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      .tab-btn.active {
+        background: rgba(245, 200, 66, 0.12);
+        color: #f5c842;
+      }
+
+      .tab-btn:hover {
+        color: #d4c08a;
+      }
+
+      .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .project-item {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 215, 0, 0.04);
+        border-radius: 16px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .project-item .info h4 {
+        color: #e8edf5;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .project-item .info p {
+        color: #6a7a8f;
+        font-size: 11px;
+        margin-top: 2px;
+      }
+
+      .project-item .status {
+        font-size: 10px;
+        padding: 3px 12px;
+        border-radius: 30px;
+        font-weight: 500;
+      }
+
+      .status.ongoing {
+        background: rgba(245, 200, 66, 0.15);
+        color: #f5c842;
+      }
+
+      .status.completed {
+        background: rgba(0, 255, 100, 0.1);
+        color: #6fdf8a;
+      }
+
+      .status.pending {
+        background: rgba(255, 100, 100, 0.1);
+        color: #f77;
+      }
+
+      .employee-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 215, 0, 0.04);
+        border-radius: 16px;
+        margin-bottom: 6px;
+      }
+
+      .employee-item .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 40px;
+        background: rgba(245, 200, 66, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #f5c842;
+      }
+
+      .employee-item .info {
+        flex: 1;
+      }
+
+      .employee-item .info h4 {
+        color: #e8edf5;
+        font-size: 13px;
+      }
+
+      .employee-item .info p {
+        color: #6a7a8f;
+        font-size: 10px;
+      }
+
+      .employee-item .role {
+        font-size: 9px;
+        padding: 2px 10px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.04);
+        color: #8a9bb5;
+      }
+
+      .finance-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 215, 0, 0.04);
+        border-radius: 16px;
+        margin-bottom: 6px;
+      }
+
+      .finance-row .label {
+        color: #8a9bb5;
+        font-size: 12px;
+      }
+
+      .finance-row .value {
+        color: #e8edf5;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .finance-row .value.positive {
+        color: #6fdf8a;
+      }
+
+      .finance-row .value.negative {
+        color: #f77;
+      }
+
+      .chat-mini {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 20px;
+        padding: 12px;
+        height: 160px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255, 215, 0, 0.04);
+      }
+
+      .chat-mini .msg {
+        margin-bottom: 6px;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .chat-mini .msg.user {
+        color: #f5c842;
+        text-align: right;
+      }
+
+      .chat-mini .msg.bot {
+        color: #b8c4d4;
+      }
+
+      .chat-input-mini {
+        display: flex;
+        gap: 6px;
+      }
+
+      .chat-input-mini input {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 215, 0, 0.06);
+        border-radius: 30px;
+        padding: 8px 14px;
+        color: #fff;
+        font-size: 12px;
+        outline: none;
+      }
+
+      .chat-input-mini input:focus {
+        border-color: rgba(255, 215, 0, 0.2);
+      }
+
+      .chat-input-mini button {
+        background: rgba(245, 200, 66, 0.1);
+        border: 1px solid rgba(255, 215, 0, 0.06);
+        color: #f5c842;
+        width: 36px;
+        height: 36px;
+        border-radius: 40px;
+        cursor: pointer;
+      }
+
+      .chat-input-mini button:hover {
+        background: rgba(245, 200, 66, 0.2);
+      }
+
+      .engine-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 12px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 30px;
+        margin-top: 10px;
+        font-size: 10px;
+      }
+
+      .engine-status .badge {
+        color: #6fdf8a;
+      }
+
+      .engine-status .badge i {
+        margin-right: 4px;
+      }
+
+      .quick-btn {
+        background: rgba(255, 215, 0, 0.04);
+        border: 1px solid rgba(255, 215, 0, 0.06);
+        color: #d4c08a;
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .quick-btn:hover {
+        background: rgba(245, 200, 66, 0.1);
+      }
+
+      .add-btn {
+        width: 100%;
+        margin-top: 8px;
+        padding: 10px;
+        background: rgba(245, 200, 66, 0.06);
+        border: 1px dashed rgba(255, 215, 0, 0.1);
+        border-radius: 30px;
+        color: #8a9bb5;
+        cursor: pointer;
+        font-size: 12px;
+        transition: 0.2s;
+      }
+
+      .add-btn:hover {
+        background: rgba(245, 200, 66, 0.1);
+        color: #f5c842;
+      }
+
+      .api-setup {
+        background: rgba(255, 200, 0, 0.04);
+        border: 1px solid rgba(255, 200, 0, 0.06);
+        border-radius: 12px;
+        padding: 8px 10px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .api-setup input {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 215, 0, 0.1);
+        border-radius: 30px;
+        padding: 6px 12px;
+        flex: 1;
+        min-width: 100px;
+        color: #fff;
+        font-size: 11px;
+        outline: none;
+      }
+
+      .api-setup input:focus {
+        border-color: #f5c842;
+      }
+
+      .api-setup label {
+        color: #b8aa7a;
+        font-size: 10px;
+      }
+
+      .api-setup .badge-auto {
+        background: rgba(0, 255, 100, 0.08);
+        color: #6fdf8a;
+        font-size: 9px;
+        padding: 2px 10px;
+        border-radius: 30px;
+        border: 1px solid rgba(0, 255, 100, 0.1);
+      }
+
+      .chat-mini::-webkit-scrollbar {
+        width: 3px;
+      }
+
+      .chat-mini::-webkit-scrollbar-thumb {
+        background: #f5c842;
+        border-radius: 12px;
+      }
+
+      @media (max-width: 400px) {
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .header h1 {
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- HEADER -->
+      <div class="header">
+        <h1>🏗️ مدير البناء <small>v2.0</small>
+        </h1>
+        <div class="header-actions">
+          <button onclick="refreshData()" title="تحديث">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <button onclick="exportReport()" title="تصدير">
+            <i class="fas fa-file-export"></i>
+          </button>
+        </div>
+      </div>
+      <!-- مفاتيح API -->
+      <div class="api-setup">
+        <label>🔑 <span style="font-size:9px;">مفاتيح API</span>
+        </label>
+        <input type="password" id="geminiKey" placeholder="Gemini: AIza..." style="flex:1.5;" />
+        <input type="password" id="groqKey" placeholder="Groq: gsk_..." style="flex:1;" />
+        <input type="password" id="deepseekKey" placeholder="DeepSeek: sk-..." style="flex:1;" />
+        <span class="badge-auto">🔄 تلقائي</span>
+      </div>
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="icon">
+            <i class="fas fa-hard-hat"></i>
+          </div>
+          <div class="number" id="statsProjects">0</div>
+          <div class="label">مشاريع</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="number" id="statsEmployees">0</div>
+          <div class="label">موظفين</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <div class="number" id="statsBudget">0</div>
+          <div class="label">الميزانية</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="number" id="statsCompleted">0</div>
+          <div class="label">منتهية</div>
+        </div>
+      </div>
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tabProjects">
+          <i class="fas fa-building"></i> مشاريع </button>
+        <button class="tab-btn" data-tab="tabEmployees">
+          <i class="fas fa-users"></i> فريق </button>
+        <button class="tab-btn" data-tab="tabFinance">
+          <i class="fas fa-wallet"></i> مالية </button>
+        <button class="tab-btn" data-tab="tabAI">
+          <i class="fas fa-robot"></i> مساعد </button>
+      </div>
+      <!-- TAB: PROJECTS -->
+      <div class="tab-content active" id="tabProjects">
+        <div id="projectList"></div>
+        <button class="add-btn" onclick="addProject()">
+          <i class="fas fa-plus"></i> إضافة مشروع جديد </button>
+      </div>
+      <!-- TAB: EMPLOYEES -->
+      <div class="tab-content" id="tabEmployees">
+        <div id="employeeList"></div>
+        <button class="add-btn" onclick="addEmployee()">
+          <i class="fas fa-plus"></i> إضافة موظف </button>
+      </div>
+      <!-- TAB: FINANCE -->
+      <div class="tab-content" id="tabFinance">
+        <div id="financeList"></div>
+        <button class="add-btn" onclick="addFinance()">
+          <i class="fas fa-plus"></i> إضافة عملية مالية </button>
+      </div>
+      <!-- TAB: AI -->
+      <div class="tab-content" id="tabAI">
+        <div class="chat-mini" id="aiChat">
+          <div class="msg bot">🤖 مرحبا! أنا مساعدك الذكي للبناء.</div>
+          <div class="msg bot">• تقدير التكاليف • المواد • التراخيص • التسيير</div>
+        </div>
+        <div class="chat-input-mini">
+          <input type="text" id="aiInput" placeholder="اسأل عن البناء..." />
+          <button id="aiSendBtn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+          <button id="aiMicBtn" style="background:rgba(196,46,59,0.2);border-color:rgba(196,46,59,0.3);color:#c42e3b;">
+            <i class="fas fa-microphone"></i>
+          </button>
+        </div>
+        <div class="engine-status">
+          <span>🔄 <span id="aiStatus">جاهز</span>
+          </span>
+          <span class="badge">
+            <i class="fas fa-brain"></i>
+            <span id="aiEngine">HuggingFace</span>
+          </span>
+        </div>
+        <div style="display:flex; gap:4px; margin-top:8px; flex-wrap:wrap;">
+          <button class="quick-btn" data-msg="كم تكلفة بناء فيلا 150م² في المغرب؟">💰 التكلفة</button>
+          <button class="quick-btn" data-msg="شنو هي مراحل البناء الأساسية؟">📋 المراحل</button>
+          <button class="quick-btn" data-msg="كيفاش نختار مقاول موثوق؟">👷 المقاول</button>
+          <button class="quick-btn" data-msg="شنو هي القوانين الجديدة للبناء في المغرب؟">⚖️ القوانين</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      // ============================================================
+      //  البيانات
+      // ============================================================
+      let data = {
+        projects: [{
+          id: 1,
+          name: 'فيلا السعادة',
+          location: 'الدار البيضاء',
+          status: 'ongoing',
+          budget: 850000,
+          progress: 65
+        }, {
+          id: 2,
+          name: 'عمارة النور',
+          location: 'الرباط',
+          status: 'completed',
+          budget: 1200000,
+          progress: 100
+        }, {
+          id: 3,
+          name: 'مجمع سكني',
+          location: 'مراكش',
+          status: 'pending',
+          budget: 2300000,
+          progress: 20
+        }, {
+          id: 4,
+          name: 'مستودع صناعي',
+          location: 'طنجة',
+          status: 'ongoing',
+          budget: 450000,
+          progress: 45
+        }, ],
+        employees: [{
+          id: 1,
+          name: 'أحمد السوسي',
+          role: 'مهندس معماري',
+          phone: '0612345678'
+        }, {
+          id: 2,
+          name: 'فاطمة الزهراء',
+          role: 'مديرة مشاريع',
+          phone: '0687654321'
+        }, {
+          id: 3,
+          name: 'يوسف المنصوري',
+          role: 'مقاول',
+          phone: '0654321987'
+        }, {
+          id: 4,
+          name: 'سعيدة بنعلي',
+          role: 'محاسبة',
+          phone: '0678912345'
+        }, ],
+        finances: [{
+          id: 1,
+          label: 'شراء إسمنت',
+          amount: -45000,
+          date: '2026-03-01'
+        }, {
+          id: 2,
+          label: 'دفعة للعمال',
+          amount: -28000,
+          date: '2026-03-05'
+        }, {
+          id: 3,
+          label: 'دفعة أولى من العميل',
+          amount: 200000,
+          date: '2026-02-20'
+        }, {
+          id: 4,
+          label: 'حديد بناء',
+          amount: -67000,
+          date: '2026-02-28'
+        }, ]
+      };
+      // ============================================================
+      //  حفظ واسترجاع
+      // ============================================================
+      function saveData() {
+        localStorage.setItem('companyData', JSON.stringify(data));
+      }
+
+      function loadData() {
+        const saved = localStorage.getItem('companyData');
+        if (saved) {
+          try {
+            data = JSON.parse(saved);
+          } catch (e) {}
+        }
+      }
+      loadData();
+      // ============================================================
+      //  عرض البيانات
+      // ============================================================
+      function renderProjects() {
+        const container = document.getElementById('projectList');
+        container.innerHTML = data.projects.map(p => `
+            
+			<div class="project-item">
+				<div class="info">
+					<h4>${p.name}</h4>
+					<p>📍 ${p.location} · ${p.progress}% · ${(p.budget/1000).toFixed(0)}K DH</p>
+				</div>
+				<span class="status ${p.status}">${p.status === 'ongoing' ? 'قيد الإنجاز' : p.status === 'completed' ? 'منتهي' : 'قيد الدراسة'}</span>
+			</div>
+        `).join('');
+        document.getElementById('statsProjects').textContent = data.projects.length;
+        document.getElementById('statsCompleted').textContent = data.projects.filter(p => p.status === 'completed').length;
+      }
+
+      function renderEmployees() {
+        const container = document.getElementById('employeeList');
+        container.innerHTML = data.employees.map(e => `
+            
+			<div class="employee-item">
+				<div class="avatar">
+					<i class="fas fa-user"></i>
+				</div>
+				<div class="info">
+					<h4>${e.name}</h4>
+					<p>📱 ${e.phone}</p>
+				</div>
+				<span class="role">${e.role}</span>
+			</div>
+        `).join('');
+        document.getElementById('statsEmployees').textContent = data.employees.length;
+      }
+
+      function renderFinance() {
+        const container = document.getElementById('financeList');
+        const total = data.finances.reduce((sum, f) => sum + f.amount, 0);
+        container.innerHTML = data.finances.map(f => `
+            
+			<div class="finance-row">
+				<span class="label">${f.label} 
+					<span style="color:#6a7a8f;font-size:10px;">${f.date}</span>
+				</span>
+				<span class="value ${f.amount >= 0 ? 'positive' : 'negative'}">${f.amount >= 0 ? '+' : ''}${(f.amount/1000).toFixed(1)}K DH</span>
+			</div>
+        `).join('');
+        document.getElementById('statsBudget').textContent = (total / 1000).toFixed(1) + 'K';
+      }
+
+      function refreshData() {
+        renderProjects();
+        renderEmployees();
+        renderFinance();
+        saveData();
+      }
+      // ============================================================
+      //  إضافة بيانات
+      // ============================================================
+      function addProject() {
+        const name = prompt('اسم المشروع:');
+        if (!name) return;
+        const location = prompt('الموقع:');
+        const budget = parseFloat(prompt('الميزانية (بالدرهم):')) || 0;
+        data.projects.push({
+          id: Date.now(),
+          name,
+          location: location || 'غير محدد',
+          status: 'pending',
+          budget,
+          progress: 0
+        });
+        refreshData();
+      }
+
+      function addEmployee() {
+        const name = prompt('الاسم الكامل:');
+        if (!name) return;
+        const role = prompt('الوظيفة:');
+        const phone = prompt('رقم الهاتف:');
+        data.employees.push({
+          id: Date.now(),
+          name,
+          role: role || 'موظف',
+          phone: phone || 'غير محدد'
+        });
+        refreshData();
+      }
+
+      function addFinance() {
+        const label = prompt('وصف العملية:');
+        if (!label) return;
+        const amount = parseFloat(prompt('المبلغ (بدرهم، استخدم - للصرف):')) || 0;
+        data.finances.push({
+          id: Date.now(),
+          label,
+          amount,
+          date: new Date().toISOString().slice(0, 10)
+        });
+        refreshData();
+      }
+
+      function exportReport() {
+        let txt = '=== تقرير شركة البناء ===\n\n';
+        txt += '📊 المشاريع:\n';
+        data.projects.forEach(p => {
+          txt += `- ${p.name} (${p.location}) : ${p.progress}% - ${(p.budget/1000).toFixed(0)}K DH\n`;
+        });
+        txt += '\n👷 الفريق:\n';
+        data.employees.forEach(e => {
+          txt += `- ${e.name} : ${e.role} (${e.phone})\n`;
+        });
+        txt += '\n💰 المالية:\n';
+        data.finances.forEach(f => {
+          txt += `- ${f.label} : ${f.amount >= 0 ? '+' : ''}${f.amount} DH (${f.date})\n`;
+        });
+        const total = data.finances.reduce((s, f) => s + f.amount, 0);
+        txt += `\nالمجموع: ${total} DH`;
+        const blob = new Blob([txt], {
+          type: 'text/plain;charset=utf-8'
+        });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `تقرير_البناء_${new Date().toISOString().slice(0,10)}.txt`;
+        a.click();
+      }
+      // ============================================================
+      //  الذكاء الاصطناعي
+      // ============================================================
+      async function askAI(prompt) {
+        const statusEl = document.getElementById('aiStatus');
+        const engineEl = document.getElementById('aiEngine');
+        // حفظ المفاتيح
+        ['geminiKey', 'groqKey', 'deepseekKey'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el.value) localStorage.setItem(id, el.value);
+        });
+        const engines = [{
+          name: 'Gemini',
+          fn: async () => {
+            const key = localStorage.getItem('geminiKey') || '';
+            if (!key) return null;
+            try {
+              const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  contents: [{
+                    parts: [{
+                      text: `أنت خبير في البناء والتشييد. أجب بالدارجة أو العربية. ${prompt}`
+                    }]
+                  }],
+                  generationConfig: {
+                    temperature: 0.3,
+                    maxOutputTokens: 512
+                  }
+                })
+              });
+              const d = await res.json();
+              return d.candidates?.[0]?.content?.parts?.[0]?.text || null;
+            } catch (e) {
+              return null;
+            }
+          }
+        }, {
+          name: 'Groq',
+          fn: async () => {
+            const key = localStorage.getItem('groqKey') || '';
+            if (!key) return null;
+            try {
+              const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${key}`
+                },
+                body: JSON.stringify({
+                  model: 'mixtral-8x7b-32768',
+                  messages: [{
+                    role: 'system',
+                    content: 'أنت خبير بناء.'
+                  }, {
+                    role: 'user',
+                    content: prompt
+                  }],
+                  temperature: 0.3,
+                  max_tokens: 512
+                })
+              });
+              const d = await res.json();
+              return d.choices?.[0]?.message?.content || null;
+            } catch (e) {
+              return null;
+            }
+          }
+        }, {
+          name: 'DeepSeek',
+          fn: async () => {
+            const key = localStorage.getItem('deepseekKey') || '';
+            if (!key) return null;
+            try {
+              const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${key}`
+                },
+                body: JSON.stringify({
+                  model: 'deepseek-chat',
+                  messages: [{
+                    role: 'system',
+                    content: 'أنت خبير بناء.'
+                  }, {
+                    role: 'user',
+                    content: prompt
+                  }],
+                  temperature: 0.3,
+                  max_tokens: 512
+                })
+              });
+              const d = await res.json();
+              return d.choices?.[0]?.message?.content || null;
+            } catch (e) {
+              return null;
+            }
+          }
+        }, {
+          name: 'HuggingFace',
+          fn: async () => {
+            try {
+              const res = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  inputs: `[INST] أنت خبير في البناء. ${prompt} [/INST]`,
+                  parameters: {
+                    max_new_tokens: 512,
+                    temperature: 0.3
+                  }
+                })
+              });
+              const d = await res.json();
+              if (Array.isArray(d) && d[0]?.generated_text) {
+                return d[0].generated_text.split('[/INST]').pop()?.trim() || null;
+              }
+              return null;
+            } catch (e) {
+              return null;
+            }
+          }
+        }];
+        for (const engine of engines) {
+          try {
+            statusEl.textContent = `🔄 جاري ${engine.name}...`;
+            engineEl.textContent = engine.name;
+            const result = await engine.fn();
+            if (result && result.length > 10) {
+              statusEl.textContent = '✅ تم الرد';
+              return result;
+            }
+          } catch (e) {}
+        }
+        statusEl.textContent = '⚠️ جميع المحركات غير متاحة';
+        return '❌ عذراً، جميع محركات الذكاء الاصطناعي غير متاحة حالياً. تأكد من مفاتيح API أو استخدم HuggingFace المجاني.';
+      }
+      // ============================================================
+      //  AI UI
+      // ============================================================
+      async function sendAIMessage() {
+        const input = document.getElementById('aiInput');
+        const chat = document.getElementById('aiChat');
+        const text = input.value.trim();
+        if (!text) return;
+        chat.innerHTML += `
+			<div class="msg user">👤 ${text}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+        input.value = '';
+        chat.innerHTML += `
+			<div class="msg bot">⏳ جاري التفكير...</div>`;
+        chat.scrollTop = chat.scrollHeight;
+        const reply = await askAI(text);
+        const msgs = chat.querySelectorAll('.msg');
+        if (msgs.length > 0 && msgs[msgs.length - 1].textContent.includes('جاري التفكير')) {
+          msgs[msgs.length - 1].remove();
+        }
+        chat.innerHTML += `
+			<div class="msg bot">🤖 ${reply}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      }
+      // ============================================================
+      //  TABS
+      // ============================================================
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.getElementById(this.dataset.tab).classList.add('active');
+        });
+      });
+      // ============================================================
+      //  EVENTS
+      // ============================================================
+      document.getElementById('aiSendBtn').addEventListener('click', sendAIMessage);
+      document.getElementById('aiInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') sendAIMessage();
+      });
+      document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.getElementById('aiInput').value = this.dataset.msg;
+          sendAIMessage();
+        });
+      });
+      // مايك
+      let isRecording = false;
+      let recognition = null;
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SR();
+        recognition.lang = 'ar-001';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.onresult = function(e) {
+          document.getElementById('aiInput').value = e.results[0][0].transcript;
+          sendAIMessage();
+          document.getElementById('aiMicBtn').style.background = 'rgba(196,46,59,0.2)';
+          isRecording = false;
+        };
+        recognition.onend = function() {
+          document.getElementById('aiMicBtn').style.background = 'rgba(196,46,59,0.2)';
+          isRecording = false;
+        };
+      }
+      document.getElementById('aiMicBtn').addEventListener('click', function() {
+        if (!recognition) {
+          alert('🚫 المايك مامدعمش فهاد المتصفح');
+          return;
+        }
+        if (isRecording) {
+          recognition.stop();
+          this.style.background = 'rgba(196,46,59,0.2)';
+          isRecording = false;
+          return;
+        }
+        try {
+          recognition.start();
+          this.style.background = 'rgba(196,46,59,0.5)';
+          isRecording = true;
+        } catch (e) {
+          alert('⚠️ ' + e.message);
+        }
+      });
+      // ============================================================
+      //  بدء التشغيل
+      // ============================================================
+      refreshData
